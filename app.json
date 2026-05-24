@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Islamic",
+    "slug": "islamic",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "islamic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D3B2E"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.islamic.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Islamic uses your location for prayer times, Qibla direction, and nearby mosques.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Islamic uses your location for prayer reminders and location-based features.",
+        "UIBackgroundModes": ["location", "fetch"]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D3B2E"
+      },
+      "package": "com.islamic.app",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "color": "#0D3B2E"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Islamic to use your location for prayer times and Qibla."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "islamic-companion"
+      }
+    }
+  }
+}
