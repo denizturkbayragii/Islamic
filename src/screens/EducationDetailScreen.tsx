@@ -1,21 +1,25 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/Card';
-import { EDUCATION_TOPICS } from '../data/education';
+import { getEducationTopics } from '../data/education';
+import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EducationDetail'>;
 
 export function EducationDetailScreen({ route }: Props) {
+  const { settings } = useApp();
   const { colors } = useTheme();
-  const topic = EDUCATION_TOPICS.find((t) => t.id === route.params.topicId);
+  const { t } = useTranslation();
+  const topic = getEducationTopics(settings.appLanguage).find((x) => x.id === route.params.topicId);
 
   if (!topic) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Topic not found.</Text>
+        <Text style={{ color: colors.text }}>{t('education.notFound')}</Text>
       </View>
     );
   }
@@ -24,16 +28,14 @@ export function EducationDetailScreen({ route }: Props) {
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
       <Text style={[styles.title, { color: colors.text }]}>{topic.title}</Text>
       <Text style={[styles.summary, { color: colors.textSecondary }]}>{topic.summary}</Text>
-      <Text style={[styles.section, { color: colors.text }]}>Perspectives</Text>
+      <Text style={[styles.section, { color: colors.text }]}>{t('education.perspectivesTitle')}</Text>
       {topic.perspectives.map((p, i) => (
         <Card key={i}>
           <Text style={[styles.sect, { color: colors.primary }]}>{p.sect}</Text>
           <Text style={[styles.approach, { color: colors.text }]}>{p.approach}</Text>
         </Card>
       ))}
-      <Text style={[styles.disclaimer, { color: colors.textSecondary }]}>
-        This content is for educational purposes. Consult qualified scholars for personal religious rulings.
-      </Text>
+      <Text style={[styles.disclaimer, { color: colors.textSecondary }]}>{t('education.disclaimer')}</Text>
     </ScrollView>
   );
 }

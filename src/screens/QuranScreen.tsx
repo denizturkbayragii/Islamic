@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from '
 import { QURAN_EDITIONS } from '../constants/defaults';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import { fetchSurahList, type SurahListItem } from '../services/quranApi';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -12,16 +13,18 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Quran'>;
 export function QuranScreen({ navigation }: Props) {
   const { settings } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [surahs, setSurahs] = useState<SurahListItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const edition =
-    QURAN_EDITIONS.find((e) => e.language === settings.language)?.id ?? 'en.sahih';
+  const edition = settings.quranEditionId;
+  const editionMeta = QURAN_EDITIONS.find((e) => e.id === edition);
 
   useEffect(() => {
-    fetchSurahList(settings.language)
+    const lang = editionMeta?.language ?? 'en';
+    fetchSurahList(lang)
       .then(setSurahs)
       .finally(() => setLoading(false));
-  }, [settings.language]);
+  }, [edition, editionMeta?.language]);
 
   if (loading) {
     return (
@@ -34,7 +37,7 @@ export function QuranScreen({ navigation }: Props) {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Text style={[styles.hint, { color: colors.textSecondary }]}>
-        Edition: {QURAN_EDITIONS.find((e) => e.id === edition)?.name ?? edition}
+        {t('quran.edition')}: {editionMeta?.name ?? edition}
       </Text>
       <FlatList
         data={surahs}
@@ -55,7 +58,9 @@ export function QuranScreen({ navigation }: Props) {
             </View>
             <View style={styles.info}>
               <Text style={[styles.name, { color: colors.text }]}>{item.englishName}</Text>
-              <Text style={{ color: colors.textSecondary }}>{item.name} · {item.numberOfAyahs} ayahs</Text>
+              <Text style={{ color: colors.textSecondary }}>
+                {item.name} · {item.numberOfAyahs} {t('quran.ayahs')}
+              </Text>
             </View>
           </Pressable>
         )}

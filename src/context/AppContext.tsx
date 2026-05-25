@@ -3,6 +3,7 @@ import { DEFAULT_SETTINGS } from '../constants/defaults';
 import type { SpiritualHabit, UserSettings } from '../types';
 import { getCachedLocation, getCurrentLocation, type StoredLocation } from '../services/location';
 import { schedulePrayerNotifications, setupNotificationChannels } from '../services/notifications';
+import { migrateSettings } from '../services/settingsMigration';
 import { getJson, setJson, storageKeys } from '../services/storage';
 
 interface AppContextValue {
@@ -30,12 +31,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     (async () => {
       await setupNotificationChannels();
-      const [savedSettings, savedHabits, cachedLoc] = await Promise.all([
+      const [rawSettings, savedHabits, cachedLoc] = await Promise.all([
         getJson(storageKeys.settings, DEFAULT_SETTINGS),
         getJson<SpiritualHabit[]>(storageKeys.habits, []),
         getCachedLocation(),
       ]);
+      const savedSettings = migrateSettings(rawSettings);
       setSettings(savedSettings);
+      void setJson(storageKeys.settings, savedSettings);
       setHabits(savedHabits);
       setLocation(cachedLoc);
       setLoading(false);

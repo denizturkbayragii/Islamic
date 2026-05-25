@@ -4,9 +4,9 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card } from '../components/Card';
 import { FeatureTile } from '../components/FeatureTile';
-import { prayerLabels } from '../constants/theme';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import { gregorianToHijri } from '../services/hijriCalendar';
 import { getNextPrayer, getPrayerTimes } from '../services/prayerTimes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export function HomeScreen({ navigation }: Props) {
   const { location, refreshLocation, loading, settings } = useApp();
   const { colors } = useTheme();
+  const { t, prayer } = useTranslation();
 
   useEffect(() => {
     refreshLocation();
@@ -57,55 +58,55 @@ export function HomeScreen({ navigation }: Props) {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={[styles.hero, { backgroundColor: colors.primary }]}>
           <Text style={styles.bismillah}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</Text>
-          <Text style={styles.appName}>Islamic</Text>
+          <Text style={styles.appName}>{t('app.name')}</Text>
           <Text style={styles.hijri}>{hijri.formatted}</Text>
           {location ? (
             <Text style={styles.location}>
-              <Ionicons name="location" size={14} /> {location.city ?? 'Your location'}
+              <Ionicons name="location" size={14} /> {location.city ?? t('home.yourLocation')}
               {location.country ? `, ${location.country}` : ''}
             </Text>
           ) : (
             <Pressable onPress={refreshLocation}>
-              <Text style={styles.locationTap}>Tap to enable location</Text>
+              <Text style={styles.locationTap}>{t('home.tapLocation')}</Text>
             </Pressable>
           )}
         </View>
 
         {nextPrayer && (
           <Card style={styles.nextCard}>
-            <Text style={[styles.nextLabel, { color: colors.textSecondary }]}>Next Prayer</Text>
-            <Text style={[styles.nextName, { color: colors.primary }]}>
-              {prayerLabels[nextPrayer.name]}
+            <Text style={[styles.nextLabel, { color: colors.textSecondary }]}>{t('home.nextPrayer')}</Text>
+            <Text style={[styles.nextName, { color: colors.primary }]}>{prayer(nextPrayer.name)}</Text>
+            <Text style={[styles.nextTime, { color: colors.text }]}>
+              {t('home.in')} {nextPrayer.remaining}
             </Text>
-            <Text style={[styles.nextTime, { color: colors.text }]}>in {nextPrayer.remaining}</Text>
           </Card>
         )}
 
         {schedule && (
           <Card>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Today's Times</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('home.todayTimes')}</Text>
             {(['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as const).map((p) => (
               <View key={p} style={styles.prayerRow}>
-                <Text style={{ color: colors.text }}>{prayerLabels[p]}</Text>
+                <Text style={{ color: colors.text }}>{prayer(p)}</Text>
                 <Text style={{ color: colors.primary, fontWeight: '600' }}>{schedule.times[p]}</Text>
               </View>
             ))}
           </Card>
         )}
 
-        <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 8 }]}>Explore</Text>
-        <FeatureTile icon="book" title="Quran" subtitle="Multiple translations & languages" onPress={() => navigation.navigate('Quran')} />
-        <FeatureTile icon="document-text" title="Hadith" subtitle="Collections by tradition" onPress={() => navigation.navigate('Hadith')} />
-        <FeatureTile icon="compass" title="Qibla Finder" subtitle="Direction to the Kaaba" onPress={() => navigation.navigate('Qibla')} />
-        <FeatureTile icon="business" title="Nearby Mosques" subtitle="Mosques & prayer rooms" onPress={() => navigation.navigate('Places', { type: 'mosque' })} />
-        <FeatureTile icon="restaurant" title="Halal Restaurants" subtitle="Especially abroad" onPress={() => navigation.navigate('Places', { type: 'halal_restaurant' })} />
-        <FeatureTile icon="ellipse-outline" title="Digital Tasbih" subtitle="Dhikr counter" onPress={() => navigation.navigate('Tasbih')} />
-        <FeatureTile icon="calendar" title="Islamic Calendar" subtitle="Hijri dates & events" onPress={() => navigation.navigate('Calendar')} />
-        <FeatureTile icon="school" title="Education" subtitle="Multi-perspective learning" onPress={() => navigation.navigate('Education')} />
-        <FeatureTile icon="heart" title="Spiritual Habits" subtitle="Track worship goals" onPress={() => navigation.navigate('Habits')} />
-        <FeatureTile icon="calculator" title="Zakat & Sadaqa" subtitle="Religious duty calculators" onPress={() => navigation.navigate('Duties')} />
-        <FeatureTile icon="notifications" title="Prayer Notifications" subtitle="Sounds, days & per-prayer control" onPress={() => navigation.navigate('NotificationSettings')} />
-        <FeatureTile icon="settings" title="Settings" subtitle="Madhab, method & language" onPress={() => navigation.navigate('Settings')} />
+        <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 8 }]}>{t('home.explore')}</Text>
+        <FeatureTile icon="book" title={t('nav.quran')} subtitle={t('home.quranSub')} onPress={() => navigation.navigate('Quran')} />
+        <FeatureTile icon="document-text" title={t('nav.hadith')} subtitle={t('home.hadithSub')} onPress={() => navigation.navigate('Hadith')} />
+        <FeatureTile icon="compass" title={t('nav.qibla')} subtitle={t('home.qiblaSub')} onPress={() => navigation.navigate('Qibla')} />
+        <FeatureTile icon="business" title={t('places.mosque')} subtitle={t('home.mosquesSub')} onPress={() => navigation.navigate('Places', { type: 'mosque' })} />
+        <FeatureTile icon="restaurant" title={t('places.halal_restaurant')} subtitle={t('home.halalSub')} onPress={() => navigation.navigate('Places', { type: 'halal_restaurant' })} />
+        <FeatureTile icon="ellipse-outline" title={t('nav.tasbih')} subtitle={t('home.tasbihSub')} onPress={() => navigation.navigate('Tasbih')} />
+        <FeatureTile icon="calendar" title={t('nav.calendar')} subtitle={t('home.calendarSub')} onPress={() => navigation.navigate('Calendar')} />
+        <FeatureTile icon="school" title={t('nav.education')} subtitle={t('home.educationSub')} onPress={() => navigation.navigate('Education')} />
+        <FeatureTile icon="heart" title={t('nav.habits')} subtitle={t('home.habitsSub')} onPress={() => navigation.navigate('Habits')} />
+        <FeatureTile icon="calculator" title={t('nav.duties')} subtitle={t('home.dutiesSub')} onPress={() => navigation.navigate('Duties')} />
+        <FeatureTile icon="notifications" title={t('nav.notifications')} subtitle={t('home.notifSub')} onPress={() => navigation.navigate('NotificationSettings')} />
+        <FeatureTile icon="settings" title={t('nav.settings')} subtitle={t('home.settingsSub')} onPress={() => navigation.navigate('Settings')} />
       </ScrollView>
     </SafeAreaView>
   );

@@ -2,7 +2,7 @@
 
 A comprehensive mobile companion app that consolidates prayer times, Quran & Hadith, Qibla, nearby mosques, halal dining, spiritual habits, Islamic calendar, education, and Zakat/Sadaqa tools into one experience.
 
-Built with **React Native** and **Expo** (iOS & Android).
+Built with **React Native** and **Expo SDK 54** (iOS & Android).
 
 ## Features
 

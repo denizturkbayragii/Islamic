@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import { getCurrentLocation } from '../services/location';
 import { fetchNearbyPlaces } from '../services/places';
 import type { NearbyPlace } from '../types';
@@ -10,25 +11,18 @@ import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Places'>;
 
-const TITLES: Record<string, string> = {
-  mosque: 'Nearby Mosques',
-  prayer_room: 'Prayer Rooms',
-  halal_restaurant: 'Halal Restaurants',
-};
-
 export function PlacesScreen({ route }: Props) {
   const { type } = route.params;
   const { location, refreshLocation } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [places, setPlaces] = useState<NearbyPlace[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       const loc = location ?? (await getCurrentLocation());
-      if (!loc) {
-        await refreshLocation();
-      }
+      if (!loc) await refreshLocation();
       const coords = loc ?? location;
       if (coords) {
         const results = await fetchNearbyPlaces(coords.latitude, coords.longitude, type);
@@ -39,14 +33,12 @@ export function PlacesScreen({ route }: Props) {
   }, [location, type]);
 
   const openMaps = (p: NearbyPlace) => {
-    Linking.openURL(
-      `https://www.google.com/maps/search/?api=1&query=${p.latitude},${p.longitude}`
-    );
+    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${p.latitude},${p.longitude}`);
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>{TITLES[type]}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>{t(`places.${type}`)}</Text>
       {loading ? (
         <ActivityIndicator color={colors.primary} style={{ marginTop: 40 }} />
       ) : (
@@ -55,7 +47,7 @@ export function PlacesScreen({ route }: Props) {
           keyExtractor={(item) => item.id}
           ListEmptyComponent={
             <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>
-              No places found nearby. Try refreshing location.
+              {t('places.empty')}
             </Text>
           }
           renderItem={({ item }) => (
@@ -65,7 +57,7 @@ export function PlacesScreen({ route }: Props) {
             >
               <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
               <Text style={{ color: colors.textSecondary }}>
-                {item.distanceKm} km {item.address ? `· ${item.address}` : ''}
+                {item.distanceKm} {t('qibla.km')} {item.address ? `· ${item.address}` : ''}
               </Text>
             </Pressable>
           )}

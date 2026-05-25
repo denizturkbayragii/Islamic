@@ -10,7 +10,8 @@ const defaultPrayerNotification = {
 const prayers: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
 export const DEFAULT_SETTINGS: UserSettings = {
-  language: 'en',
+  appLanguage: 'en',
+  quranEditionId: 'en.sahih',
   madhab: 'hanafi',
   calculationMethod: 'muslimWorldLeague',
   sectPreference: 'neutral',
@@ -46,14 +47,9 @@ export const MADHABS = [
   { id: 'jafari', label: "Ja'fari" },
 ] as const;
 
-export const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'ar', label: 'العربية' },
-  { code: 'tr', label: 'Türkçe' },
-  { code: 'ur', label: 'اردو' },
-  { code: 'id', label: 'Bahasa Indonesia' },
-  { code: 'fr', label: 'Français' },
-  { code: 'de', label: 'Deutsch' },
+export const APP_LANGUAGES = [
+  { code: 'en' as const, label: 'English' },
+  { code: 'tr' as const, label: 'Türkçe' },
 ];
 
 export const QURAN_EDITIONS = [

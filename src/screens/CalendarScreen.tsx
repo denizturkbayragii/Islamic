@@ -1,27 +1,46 @@
 import React, { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/Card';
+import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import { getUpcomingIslamicEvents, gregorianToHijri, HIJRI_MONTHS } from '../services/hijriCalendar';
 
 export function CalendarScreen() {
+  const { settings } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const today = useMemo(() => new Date(), []);
   const hijri = useMemo(() => gregorianToHijri(today), [today]);
   const events = useMemo(() => getUpcomingIslamicEvents(today), [today]);
 
+  const monthName = (index: number) => {
+    if (settings.appLanguage === 'tr') {
+      const trMonths = [
+        'Muharrem', 'Safer', 'Rebiülevvel', 'Rebiülahir', 'Cemaziyelevvel', 'Cemaziyelahir',
+        'Recep', 'Şaban', 'Ramazan', 'Şevval', 'Zilkade', 'Zilhicce',
+      ];
+      return trMonths[index] ?? HIJRI_MONTHS[index];
+    }
+    return HIJRI_MONTHS[index];
+  };
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
       <Card>
-        <Text style={[styles.label, { color: colors.textSecondary }]}>Today (Gregorian)</Text>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>{t('calendar.gregorian')}</Text>
         <Text style={[styles.date, { color: colors.text }]}>
-          {today.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          {today.toLocaleDateString(settings.appLanguage === 'tr' ? 'tr-TR' : undefined, {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
         </Text>
-        <Text style={[styles.label, { color: colors.textSecondary, marginTop: 16 }]}>Hijri</Text>
+        <Text style={[styles.label, { color: colors.textSecondary, marginTop: 16 }]}>{t('calendar.hijri')}</Text>
         <Text style={[styles.hijri, { color: colors.primary }]}>{hijri.formatted}</Text>
       </Card>
-
-      <Text style={[styles.section, { color: colors.text }]}>Hijri Months</Text>
+      <Text style={[styles.section, { color: colors.text }]}>{t('calendar.months')}</Text>
       <View style={styles.monthGrid}>
         {HIJRI_MONTHS.map((m, i) => (
           <View
@@ -35,13 +54,12 @@ export function CalendarScreen() {
             ]}
           >
             <Text style={{ color: hijri.month === i + 1 ? '#fff' : colors.text, fontSize: 11 }}>
-              {m}
+              {monthName(i)}
             </Text>
           </View>
         ))}
       </View>
-
-      <Text style={[styles.section, { color: colors.text }]}>Upcoming Events</Text>
+      <Text style={[styles.section, { color: colors.text }]}>{t('calendar.events')}</Text>
       {events.map((e) => (
         <Card key={e.name}>
           <Text style={[styles.eventName, { color: colors.text }]}>{e.name}</Text>

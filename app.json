@@ -12,14 +12,19 @@
       "resizeMode": "contain",
       "backgroundColor": "#0D3B2E"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.islamic.app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Islamic uses your location for prayer times, Qibla direction, and nearby mosques.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Islamic uses your location for prayer reminders and location-based features.",
-        "UIBackgroundModes": ["location", "fetch"]
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
       }
     },
     "android": {
@@ -48,12 +53,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow Islamic to use your location for prayer times and Qibla."
         }
-      ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "islamic-companion"
-      }
-    }
+      ],
+      "expo-font"
+    ]
   }
 }

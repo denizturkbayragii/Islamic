@@ -3,10 +3,12 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { Card } from '../components/Card';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function HabitsScreen() {
   const { habits, addHabit, toggleHabitToday } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const today = new Date().toISOString().split('T')[0];
 
@@ -18,44 +20,34 @@ export function HabitsScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
-      <Text style={[styles.intro, { color: colors.textSecondary }]}>
-        Track daily spiritual habits — Quran reading, dhikr, charity, and more.
-      </Text>
-
+      <Text style={[styles.intro, { color: colors.textSecondary }]}>{t('habits.intro')}</Text>
       <View style={[styles.addRow, { borderColor: colors.border }]}>
         <TextInput
-          placeholder="New habit..."
+          placeholder={t('habits.placeholder')}
           placeholderTextColor={colors.textSecondary}
           value={title}
           onChangeText={setTitle}
           style={[styles.input, { color: colors.text, borderColor: colors.border }]}
         />
         <Pressable style={[styles.addBtn, { backgroundColor: colors.primary }]} onPress={handleAdd}>
-          <Text style={{ color: '#fff', fontWeight: '600' }}>Add</Text>
+          <Text style={{ color: '#fff', fontWeight: '600' }}>{t('habits.add')}</Text>
         </Pressable>
       </View>
-
       {habits.length === 0 ? (
-        <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>
-          No habits yet. Add your first spiritual goal above.
-        </Text>
+        <Text style={{ color: colors.textSecondary, textAlign: 'center', marginTop: 40 }}>{t('habits.empty')}</Text>
       ) : (
         habits.map((h) => {
           const doneToday = h.completedDates.includes(today);
           const weekStart = new Date();
           weekStart.setDate(weekStart.getDate() - 7);
           const weekCount = h.completedDates.filter((d) => new Date(d) >= weekStart).length;
-
           return (
             <Card key={h.id}>
               <Pressable onPress={() => toggleHabitToday(h.id)} style={styles.habitRow}>
                 <View
                   style={[
                     styles.check,
-                    {
-                      backgroundColor: doneToday ? colors.success : 'transparent',
-                      borderColor: colors.primary,
-                    },
+                    { backgroundColor: doneToday ? colors.success : 'transparent', borderColor: colors.primary },
                   ]}
                 >
                   {doneToday && <Text style={{ color: '#fff' }}>✓</Text>}
@@ -63,7 +55,7 @@ export function HabitsScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.habitTitle, { color: colors.text }]}>{h.title}</Text>
                   <Text style={{ color: colors.textSecondary }}>
-                    {weekCount}/{h.targetPerWeek} this week
+                    {weekCount}/{h.targetPerWeek} {t('habits.thisWeek')}
                   </Text>
                 </View>
               </Pressable>

@@ -18,6 +18,8 @@ export type CalculationMethodId =
 
 export type SectPreference = 'sunni' | 'shia' | 'neutral';
 
+export type AppLanguage = 'en' | 'tr';
+
 export interface PrayerNotificationSettings {
   enabled: boolean;
   sound: 'default' | 'adhan_short' | 'adhan_full' | 'silent';
@@ -37,7 +39,8 @@ export interface DisabledPrayerRule {
 }
 
 export interface UserSettings {
-  language: string;
+  appLanguage: AppLanguage;
+  quranEditionId: string;
   madhab: Madhab;
   calculationMethod: CalculationMethodId;
   sectPreference: SectPreference;

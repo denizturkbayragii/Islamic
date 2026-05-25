@@ -4,11 +4,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Card } from '../components/Card';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import { getDistanceToKaaba, getQiblaBearing } from '../services/qibla';
 
 export function QiblaScreen() {
   const { location, refreshLocation } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const [heading, setHeading] = useState(0);
 
   useEffect(() => {
@@ -36,32 +38,25 @@ export function QiblaScreen() {
             <View
               style={[
                 styles.needle,
-                {
-                  backgroundColor: colors.accent,
-                  transform: [{ rotate: `${rotation}deg` }],
-                },
+                { backgroundColor: colors.accent, transform: [{ rotate: `${rotation}deg` }] },
               ]}
             />
             <Text style={[styles.north, { color: colors.textSecondary }]}>N</Text>
           </View>
         </View>
         <Text style={[styles.bearing, { color: colors.primary }]}>
-          Qibla: {Math.round(qiblaBearing)}°
+          {t('qibla.qibla')}: {Math.round(qiblaBearing)}°
         </Text>
         {location && (
           <Text style={[styles.dist, { color: colors.textSecondary }]}>
-            Distance to Kaaba: {Math.round(distance).toLocaleString()} km
+            {t('qibla.distance')}: {Math.round(distance).toLocaleString()} {t('qibla.km')}
           </Text>
         )}
         {!location && (
-          <Text style={{ color: colors.warning, textAlign: 'center' }}>
-            Enable location for accurate Qibla direction
-          </Text>
+          <Text style={{ color: colors.warning, textAlign: 'center' }}>{t('qibla.enableLocation')}</Text>
         )}
       </Card>
-      <Text style={[styles.tip, { color: colors.textSecondary }]}>
-        Hold your phone flat and rotate until the gold needle points toward the top of the screen.
-      </Text>
+      <Text style={[styles.tip, { color: colors.textSecondary }]}>{t('qibla.tip')}</Text>
     </View>
   );
 }
@@ -69,21 +64,8 @@ export function QiblaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   compassWrap: { alignItems: 'center', paddingVertical: 24 },
-  compass: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    borderWidth: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  needle: {
-    position: 'absolute',
-    width: 4,
-    height: 90,
-    borderRadius: 2,
-    top: 20,
-  },
+  compass: { width: 220, height: 220, borderRadius: 110, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
+  needle: { position: 'absolute', width: 4, height: 90, borderRadius: 2, top: 20 },
   north: { position: 'absolute', top: 12, fontWeight: '700' },
   bearing: { fontSize: 22, fontWeight: '700', textAlign: 'center' },
   dist: { textAlign: 'center', marginTop: 8 },

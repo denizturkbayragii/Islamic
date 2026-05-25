@@ -1,9 +1,10 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Card } from '../components/Card';
-import { prayerLabels } from '../constants/theme';
+import { getDayNames } from '../i18n';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { PrayerName } from '../types';
 
 const PRAYERS: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
@@ -12,57 +13,57 @@ const SOUNDS = ['default', 'adhan_short', 'adhan_full', 'silent'] as const;
 export function NotificationSettingsScreen() {
   const { settings, updateSettings, location, refreshLocation } = useApp();
   const { colors } = useTheme();
+  const { t, prayer } = useTranslation();
+  const dayNames = getDayNames(settings.appLanguage);
 
   const toggleGlobal = (v: boolean) => updateSettings({ globalNotificationsEnabled: v });
-  const togglePrayer = (prayer: PrayerName, enabled: boolean) => {
+  const togglePrayer = (prayerName: PrayerName, enabled: boolean) => {
     updateSettings({
       prayerNotifications: {
         ...settings.prayerNotifications,
-        [prayer]: { ...settings.prayerNotifications[prayer], enabled },
+        [prayerName]: { ...settings.prayerNotifications[prayerName], enabled },
       },
     });
   };
 
-  const cycleSound = (prayer: PrayerName) => {
-    const current = settings.prayerNotifications[prayer].sound;
+  const cycleSound = (prayerName: PrayerName) => {
+    const current = settings.prayerNotifications[prayerName].sound;
     const idx = SOUNDS.indexOf(current);
     const next = SOUNDS[(idx + 1) % SOUNDS.length];
     updateSettings({
       prayerNotifications: {
         ...settings.prayerNotifications,
-        [prayer]: { ...settings.prayerNotifications[prayer], sound: next },
+        [prayerName]: { ...settings.prayerNotifications[prayerName], sound: next },
       },
     });
   };
 
-  const toggleDayOff = (prayer: PrayerName, day: number) => {
+  const toggleDayOff = (prayerName: PrayerName, day: number) => {
     const rules = [...settings.disabledPrayerRules];
-    const existing = rules.find((r) => r.prayer === prayer);
+    const existing = rules.find((r) => r.prayer === prayerName);
     if (existing) {
       const has = existing.daysOfWeek.includes(day);
       existing.daysOfWeek = has
         ? existing.daysOfWeek.filter((d) => d !== day)
         : [...existing.daysOfWeek, day];
       if (existing.daysOfWeek.length === 0 && existing.specificDates.length === 0) {
-        updateSettings({ disabledPrayerRules: rules.filter((r) => r.prayer !== prayer) });
+        updateSettings({ disabledPrayerRules: rules.filter((r) => r.prayer !== prayerName) });
         return;
       }
     } else {
-      rules.push({ prayer, daysOfWeek: [day], specificDates: [] });
+      rules.push({ prayer: prayerName, daysOfWeek: [day], specificDates: [] });
     }
     updateSettings({ disabledPrayerRules: rules });
   };
 
-  const isDayDisabled = (prayer: PrayerName, day: number) =>
-    settings.disabledPrayerRules.some((r) => r.prayer === prayer && r.daysOfWeek.includes(day));
-
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const isDayDisabled = (prayerName: PrayerName, day: number) =>
+    settings.disabledPrayerRules.some((r) => r.prayer === prayerName && r.daysOfWeek.includes(day));
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
       <Card>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: colors.text }]}>All prayer notifications</Text>
+          <Text style={[styles.label, { color: colors.text }]}>{t('notifications.all')}</Text>
           <Switch
             value={settings.globalNotificationsEnabled}
             onValueChange={toggleGlobal}
@@ -70,7 +71,7 @@ export function NotificationSettingsScreen() {
           />
         </View>
         <View style={styles.row}>
-          <Text style={[styles.label, { color: colors.text }]}>Location reminder</Text>
+          <Text style={[styles.label, { color: colors.text }]}>{t('notifications.locationReminder')}</Text>
           <Switch
             value={settings.locationReminderEnabled}
             onValueChange={(v) => updateSettings({ locationReminderEnabled: v })}
@@ -81,37 +82,34 @@ export function NotificationSettingsScreen() {
 
       {!location && (
         <Text onPress={refreshLocation} style={{ color: colors.primary, marginBottom: 16 }}>
-          Enable location to schedule notifications
+          {t('notifications.enableLocation')}
         </Text>
       )}
 
-      {PRAYERS.map((prayer) => (
-        <Card key={prayer}>
+      {PRAYERS.map((p) => (
+        <Card key={p}>
           <View style={styles.row}>
-            <Text style={[styles.prayerName, { color: colors.text }]}>{prayerLabels[prayer]}</Text>
+            <Text style={[styles.prayerName, { color: colors.text }]}>{prayer(p)}</Text>
             <Switch
-              value={settings.prayerNotifications[prayer]?.enabled ?? true}
-              onValueChange={(v) => togglePrayer(prayer, v)}
+              value={settings.prayerNotifications[p]?.enabled ?? true}
+              onValueChange={(v) => togglePrayer(p, v)}
               trackColor={{ true: colors.primary }}
             />
           </View>
-          <Text
-            onPress={() => cycleSound(prayer)}
-            style={{ color: colors.textSecondary, marginTop: 8 }}
-          >
-            Sound: {settings.prayerNotifications[prayer]?.sound ?? 'adhan_short'} (tap to change)
+          <Text onPress={() => cycleSound(p)} style={{ color: colors.textSecondary, marginTop: 8 }}>
+            {t('notifications.sound')}: {settings.prayerNotifications[p]?.sound ?? 'adhan_short'} ({t('notifications.tapChange')})
           </Text>
-          <Text style={[styles.disableLabel, { color: colors.textSecondary }]}>Disable on days:</Text>
+          <Text style={[styles.disableLabel, { color: colors.textSecondary }]}>{t('notifications.disableDays')}</Text>
           <View style={styles.days}>
             {dayNames.map((d, i) => (
               <Text
                 key={d}
-                onPress={() => toggleDayOff(prayer, i)}
+                onPress={() => toggleDayOff(p, i)}
                 style={[
                   styles.dayChip,
                   {
-                    backgroundColor: isDayDisabled(prayer, i) ? colors.error : colors.surface,
-                    color: isDayDisabled(prayer, i) ? '#fff' : colors.text,
+                    backgroundColor: isDayDisabled(p, i) ? colors.error : colors.surface,
+                    color: isDayDisabled(p, i) ? '#fff' : colors.text,
                     borderColor: colors.border,
                   },
                 ]}

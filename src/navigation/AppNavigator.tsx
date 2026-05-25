@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { colors } from '../constants/theme';
 import { useApp } from '../context/AppContext';
+import { useTranslation } from '../hooks/useTranslation';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { DutiesScreen } from '../screens/DutiesScreen';
 import { EducationDetailScreen } from '../screens/EducationDetailScreen';
@@ -25,35 +26,38 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function LearnStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator screenOptions={{ headerShown: true, headerTintColor: colors.primary }}>
-      <Stack.Screen name="Education" component={EducationScreen} options={{ title: 'Education' }} />
-      <Stack.Screen name="EducationDetail" component={EducationDetailScreen} options={{ title: 'Topic' }} />
+      <Stack.Screen name="Education" component={EducationScreen} options={{ title: t('nav.education') }} />
+      <Stack.Screen name="EducationDetail" component={EducationDetailScreen} options={{ title: t('nav.topic') }} />
     </Stack.Navigator>
   );
 }
 
 function HomeStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator screenOptions={{ headerShown: true, headerTintColor: colors.primary }}>
       <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Quran" component={QuranScreen} options={{ title: 'Quran' }} />
-      <Stack.Screen name="QuranReader" component={QuranReaderScreen} options={{ title: 'Surah' }} />
-      <Stack.Screen name="Hadith" component={HadithScreen} options={{ title: 'Hadith' }} />
-      <Stack.Screen name="Qibla" component={QiblaScreen} options={{ title: 'Qibla' }} />
-      <Stack.Screen name="Places" component={PlacesScreen} options={{ title: 'Nearby' }} />
-      <Stack.Screen name="Tasbih" component={TasbihScreen} options={{ title: 'Tasbih' }} />
-      <Stack.Screen name="Calendar" component={CalendarScreen} options={{ title: 'Islamic Calendar' }} />
-      <Stack.Screen name="Habits" component={HabitsScreen} options={{ title: 'Spiritual Habits' }} />
-      <Stack.Screen name="Duties" component={DutiesScreen} options={{ title: 'Zakat & Sadaqa' }} />
-      <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} options={{ title: 'Notifications' }} />
-      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
+      <Stack.Screen name="Quran" component={QuranScreen} options={{ title: t('nav.quran') }} />
+      <Stack.Screen name="QuranReader" component={QuranReaderScreen} options={{ title: t('nav.surah') }} />
+      <Stack.Screen name="Hadith" component={HadithScreen} options={{ title: t('nav.hadith') }} />
+      <Stack.Screen name="Qibla" component={QiblaScreen} options={{ title: t('nav.qibla') }} />
+      <Stack.Screen name="Places" component={PlacesScreen} options={{ title: t('nav.nearby') }} />
+      <Stack.Screen name="Tasbih" component={TasbihScreen} options={{ title: t('nav.tasbih') }} />
+      <Stack.Screen name="Calendar" component={CalendarScreen} options={{ title: t('nav.calendar') }} />
+      <Stack.Screen name="Habits" component={HabitsScreen} options={{ title: t('nav.habits') }} />
+      <Stack.Screen name="Duties" component={DutiesScreen} options={{ title: t('nav.duties') }} />
+      <Stack.Screen name="NotificationSettings" component={NotificationSettingsScreen} options={{ title: t('nav.notifications') }} />
+      <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: t('nav.settings') }} />
     </Stack.Navigator>
   );
 }
 
 export function AppNavigator() {
   const { darkMode } = useApp();
+  const { t } = useTranslation();
   const navTheme = darkMode
     ? { ...DarkTheme, colors: { ...DarkTheme.colors, primary: colors.accent, background: colors.backgroundDark, card: colors.surfaceDark } }
     : { ...DefaultTheme, colors: { ...DefaultTheme.colors, primary: colors.primary, background: colors.background, card: colors.surface } };
@@ -76,17 +80,17 @@ export function AppNavigator() {
           },
         })}
       >
-        <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Home' }} />
+        <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: t('tabs.home') }} />
         <Tab.Screen
           name="WorshipTab"
           component={QiblaScreen}
-          options={{ title: 'Worship', headerShown: true, headerTintColor: colors.primary }}
+          options={{ title: t('tabs.worship'), headerShown: true, headerTintColor: colors.primary }}
         />
-        <Tab.Screen name="LearnTab" component={LearnStack} options={{ title: 'Learn' }} />
+        <Tab.Screen name="LearnTab" component={LearnStack} options={{ title: t('tabs.learn') }} />
         <Tab.Screen
           name="MoreTab"
           component={SettingsScreen}
-          options={{ title: 'More', headerShown: true, headerTintColor: colors.primary }}
+          options={{ title: t('tabs.more'), headerShown: true, headerTintColor: colors.primary }}
         />
       </Tab.Navigator>
     </NavigationContainer>

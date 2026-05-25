@@ -1,22 +1,25 @@
 import React from 'react';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { EDUCATION_TOPICS } from '../data/education';
+import { getEducationTopics } from '../data/education';
+import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Education'>;
 
 export function EducationScreen({ navigation }: Props) {
+  const { settings } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
+  const topics = getEducationTopics(settings.appLanguage);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.intro, { color: colors.textSecondary }]}>
-        Learn about Islamic topics from multiple scholarly perspectives — designed for all sects and seekers of knowledge.
-      </Text>
+      <Text style={[styles.intro, { color: colors.textSecondary }]}>{t('education.intro')}</Text>
       <FlatList
-        data={EDUCATION_TOPICS}
+        data={topics}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <Pressable
@@ -28,7 +31,7 @@ export function EducationScreen({ navigation }: Props) {
               {item.summary}
             </Text>
             <Text style={[styles.link, { color: colors.primary }]}>
-              {item.perspectives.length} perspectives →
+              {item.perspectives.length} {t('education.perspectives')} →
             </Text>
           </Pressable>
         )}

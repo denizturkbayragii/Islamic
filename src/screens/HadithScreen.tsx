@@ -4,6 +4,7 @@ import { HADITH_COLLECTIONS } from '../constants/defaults';
 import { Card } from '../components/Card';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 
 const SAMPLE_HADITH: Record<string, { text: string; narrator: string }[]> = {
   bukhari: [
@@ -27,6 +28,7 @@ const SAMPLE_HADITH: Record<string, { text: string; narrator: string }[]> = {
 export function HadithScreen() {
   const { settings } = useApp();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const filtered = HADITH_COLLECTIONS.filter(
     (c) => settings.sectPreference === 'neutral' || !c.sect || c.sect === settings.sectPreference
   );
@@ -55,9 +57,7 @@ export function HadithScreen() {
           </Text>
         )}
       />
-      <Text style={[styles.note, { color: colors.textSecondary }]}>
-        Sample hadith for offline preview. Connect a hadith API (e.g. sunnah.com) for full collections.
-      </Text>
+      <Text style={[styles.note, { color: colors.textSecondary }]}>{t('hadith.offlineNote')}</Text>
       {hadiths.map((h, i) => (
         <Card key={i}>
           <Text style={[styles.text, { color: colors.text }]}>{h.text}</Text>

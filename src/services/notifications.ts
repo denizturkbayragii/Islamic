@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { getPrayerLabel, translate } from '../i18n';
 import type { DisabledPrayerRule, PrayerName, UserSettings } from '../types';
 import { getPrayerTimes } from './prayerTimes';
 
@@ -10,15 +11,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
-
-const PRAYER_LABELS: Record<PrayerName, string> = {
-  fajr: 'Fajr',
-  sunrise: 'Sunrise',
-  dhuhr: 'Dhuhr',
-  asr: 'Asr',
-  maghrib: 'Maghrib',
-  isha: 'Isha',
-};
 
 function isPrayerDisabled(
   prayer: PrayerName,
@@ -98,10 +90,11 @@ export async function schedulePrayerNotifications(
             ? 'default'
             : notifSettings.sound;
 
+      const prayerLabel = getPrayerLabel(settings.appLanguage, prayer);
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: `${PRAYER_LABELS[prayer]} Prayer`,
-          body: `It is time for ${PRAYER_LABELS[prayer]}. May Allah accept your worship.`,
+          title: translate(settings.appLanguage, 'notifications.title', { prayer: prayerLabel }),
+          body: translate(settings.appLanguage, 'notifications.body', { prayer: prayerLabel }),
           sound: sound === false ? undefined : sound,
           ...(Platform.OS === 'android' && { channelId: 'prayer-times' }),
         },
