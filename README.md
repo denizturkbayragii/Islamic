@@ -71,13 +71,17 @@ Islamic/
 
 ## Tech Stack
 
-- React Native 0.76 + Expo 52
+- React Native 0.81 + Expo 54
 - TypeScript
 - `adhan` — prayer time calculations
 - `hijri-converter` — Islamic calendar
 - `@react-navigation` — navigation
 - `@react-native-async-storage/async-storage` — local persistence
-- `expo-location`, `expo-notifications`, `expo-sensors`
+- `expo-location`, `expo-notifications`, `expo-audio`, `expo-sensors`
+
+### Notifications in Expo Go
+
+Local prayer reminders need a **development build** on Android (Expo Go SDK 53+). Use [EAS Build](https://docs.expo.dev/develop/development-builds/introduction/) or `npx expo run:ios` / `run:android` for full notification support. Expo Go on iOS may work with limitations.
 
 ## License
 

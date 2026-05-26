@@ -10,9 +10,21 @@ export function migrateSettings(raw: unknown): UserSettings {
   const base = { ...DEFAULT_SETTINGS, ...(raw as Partial<UserSettings>) };
   const legacy = raw as { language?: string; appLanguage?: AppLanguage; quranEditionId?: string };
 
+  const withPro = {
+    ...base,
+    homeLauncher: base.homeLauncher ?? DEFAULT_SETTINGS.homeLauncher,
+    themeId: base.themeId ?? 'emerald',
+    familyModeEnabled: base.familyModeEnabled ?? false,
+    activeFamilyMemberId: base.activeFamilyMemberId ?? null,
+    cloudSync: base.cloudSync ?? DEFAULT_SETTINGS.cloudSync,
+    widgetPrefs: base.widgetPrefs ?? DEFAULT_SETTINGS.widgetPrefs,
+    customReminders: base.customReminders ?? [],
+    offlineAudioEnabled: base.offlineAudioEnabled ?? true,
+  };
+
   if (legacy.appLanguage && legacy.quranEditionId) {
     return {
-      ...base,
+      ...withPro,
       appLanguage: legacy.appLanguage === 'tr' ? 'tr' : 'en',
       quranEditionId: legacy.quranEditionId,
     };
@@ -20,7 +32,7 @@ export function migrateSettings(raw: unknown): UserSettings {
 
   const oldLang = legacy.language ?? 'en';
   return {
-    ...base,
+    ...withPro,
     appLanguage: oldLang === 'tr' ? 'tr' : 'en',
     quranEditionId: editionForLegacyLanguage(oldLang),
   };

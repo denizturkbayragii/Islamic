@@ -20,6 +20,141 @@ export type SectPreference = 'sunni' | 'shia' | 'neutral';
 
 export type AppLanguage = 'en' | 'tr';
 
+export type HomeFeatureId =
+  | 'module_prayer_times'
+  | 'module_widget'
+  | 'quran'
+  | 'hadith'
+  | 'duas'
+  | 'qibla'
+  | 'tasbih'
+  | 'calendar'
+  | 'education'
+  | 'habits'
+  | 'duties'
+  | 'places_mosque'
+  | 'places_halal'
+  | 'notifications'
+  | 'advanced_reminders'
+  | 'ai_assistant'
+  | 'statistics'
+  | 'family_mode'
+  | 'themes'
+  | 'cloud_sync'
+  | 'widgets'
+  | 'settings';
+
+export interface HomeLauncherLayout {
+  /** Ordered feature IDs shown on home (iPhone-style launcher) */
+  order: HomeFeatureId[];
+}
+
+export interface AuthSession {
+  userId: string;
+  isGuest: boolean;
+  pseudonym: string;
+}
+
+/** Local account record — email stored only as hash */
+export interface StoredAuthUser {
+  id: string;
+  emailHash: string;
+  passwordHash: string;
+  salt: string;
+  pseudonym: string;
+  createdAt: string;
+}
+
+export interface QuranBookmark {
+  id: string;
+  surahNumber: number;
+  surahName: string;
+  edition: string;
+  ayahNumber: number;
+  label?: string;
+  createdAt: string;
+}
+
+export interface QuranProgress {
+  lastRead: {
+    surahNumber: number;
+    surahName: string;
+    edition: string;
+    ayahNumber: number;
+    updatedAt: string;
+  } | null;
+  bookmarks: QuranBookmark[];
+}
+
+export interface HadithBookmark {
+  id: string;
+  collectionId: string;
+  collectionName: string;
+  itemIndex: number;
+  label: string;
+  createdAt: string;
+}
+
+export interface HadithProgress {
+  lastRead: {
+    collectionId: string;
+    collectionName: string;
+    itemIndex: number;
+    updatedAt: string;
+  } | null;
+  bookmarks: HadithBookmark[];
+}
+
+export type ThemeId = 'emerald' | 'midnight' | 'desert' | 'ocean' | 'rose';
+
+export interface FamilyMember {
+  id: string;
+  name: string;
+  avatarEmoji: string;
+  role: 'parent' | 'child' | 'spouse' | 'other';
+  habitIds: string[];
+}
+
+export interface CustomReminder {
+  id: string;
+  title: string;
+  time: string; // HH:mm
+  daysOfWeek: number[];
+  type: 'dhikr' | 'dua' | 'quran' | 'custom';
+  enabled: boolean;
+  sound: 'default' | 'adhan_short' | 'silent';
+}
+
+export interface WidgetPreferences {
+  showNextPrayer: boolean;
+  showHijriDate: boolean;
+  showDailyDua: boolean;
+  compactMode: boolean;
+}
+
+export interface ActivityStats {
+  tasbihTotal: number;
+  habitsCompletedTotal: number;
+  duasReadCount: number;
+  quranSessions: number;
+  prayerStreakDays: number;
+  lastActiveDate: string;
+  weeklyActivity: number[]; // last 7 days score 0-100
+}
+
+export interface CloudSyncMeta {
+  lastSyncAt: string | null;
+  deviceId: string;
+  syncEnabled: boolean;
+}
+
+export interface AIChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+}
+
 export interface PrayerNotificationSettings {
   enabled: boolean;
   sound: 'default' | 'adhan_short' | 'adhan_full' | 'silent';
@@ -41,6 +176,7 @@ export interface DisabledPrayerRule {
 export interface UserSettings {
   appLanguage: AppLanguage;
   quranEditionId: string;
+  homeLauncher: HomeLauncherLayout;
   madhab: Madhab;
   calculationMethod: CalculationMethodId;
   sectPreference: SectPreference;
@@ -48,6 +184,13 @@ export interface UserSettings {
   prayerNotifications: Record<PrayerName, PrayerNotificationSettings>;
   disabledPrayerRules: DisabledPrayerRule[];
   globalNotificationsEnabled: boolean;
+  themeId: ThemeId;
+  familyModeEnabled: boolean;
+  activeFamilyMemberId: string | null;
+  cloudSync: CloudSyncMeta;
+  widgetPrefs: WidgetPreferences;
+  customReminders: CustomReminder[];
+  offlineAudioEnabled: boolean;
 }
 
 export interface SpiritualHabit {

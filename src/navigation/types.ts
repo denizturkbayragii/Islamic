@@ -14,4 +14,15 @@ export type RootStackParamList = {
   Duties: undefined;
   NotificationSettings: undefined;
   Settings: undefined;
+  Duas: undefined;
+  DuaDetail: { duaId: string };
+  AIAssistant: undefined;
+  Statistics: undefined;
+  FamilyMode: undefined;
+  Widgets: undefined;
+  Themes: undefined;
+  CloudSync: undefined;
+  AdvancedReminders: undefined;
+  HomeLauncherEdit: undefined;
+  Auth: undefined;
 };

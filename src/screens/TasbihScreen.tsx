@@ -1,13 +1,17 @@
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { getJson, setJson, storageKeys } from '../services/storage';
+import { useApp } from '../context/AppContext';
+import { getProfileJson, setProfileJson } from '../services/profileData';
+import { storageKeys } from '../services/storage';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 
 const TARGETS = [33, 99, 100];
 
 export function TasbihScreen() {
+  const { settings, trackActivity } = useApp();
+  const memberId = settings.activeFamilyMemberId;
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [count, setCount] = useState(0);
@@ -15,11 +19,11 @@ export function TasbihScreen() {
   const [totalLifetime, setTotalLifetime] = useState(0);
 
   useEffect(() => {
-    getJson(storageKeys.tasbih, { count: 0, total: 0 }).then((d) => {
+    getProfileJson(storageKeys.tasbih, memberId, { count: 0, total: 0 }).then((d) => {
       setCount(d.count);
       setTotalLifetime(d.total);
     });
-  }, []);
+  }, [memberId]);
 
   const increment = async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -27,7 +31,8 @@ export function TasbihScreen() {
     const total = totalLifetime + 1;
     setCount(next);
     setTotalLifetime(total);
-    await setJson(storageKeys.tasbih, { count: next, total });
+    await setProfileJson(storageKeys.tasbih, memberId, { count: next, total });
+    void trackActivity('tasbih');
     if (next >= target) {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -35,7 +40,7 @@ export function TasbihScreen() {
 
   const reset = async () => {
     setCount(0);
-    await setJson(storageKeys.tasbih, { count: 0, total: totalLifetime });
+    await setProfileJson(storageKeys.tasbih, memberId, { count: 0, total: totalLifetime });
   };
 
   const progress = Math.min(count / target, 1);

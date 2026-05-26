@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { APP_LANGUAGES, CALCULATION_METHODS, MADHABS, QURAN_EDITIONS } from '../constants/defaults';
@@ -5,9 +6,23 @@ import { Card } from '../components/Card';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 import type { AppLanguage, CalculationMethodId, Madhab, SectPreference } from '../types';
 
-export function SettingsScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
+
+const PREMIUM_LINKS: { route: keyof RootStackParamList; icon: keyof typeof Ionicons.glyphMap; labelKey: string }[] = [
+  { route: 'Themes', icon: 'color-palette', labelKey: 'settings.themesLink' },
+  { route: 'CloudSync', icon: 'cloud-upload', labelKey: 'settings.cloudLink' },
+  { route: 'FamilyMode', icon: 'people', labelKey: 'settings.familyLink' },
+  { route: 'Widgets', icon: 'apps', labelKey: 'settings.widgetsLink' },
+  { route: 'AdvancedReminders', icon: 'alarm', labelKey: 'settings.advancedRemindersLink' },
+  { route: 'AIAssistant', icon: 'sparkles', labelKey: 'settings.aiLink' },
+  { route: 'Statistics', icon: 'analytics', labelKey: 'settings.statsLink' },
+];
+
+export function SettingsScreen({ navigation }: Props) {
   const { settings, updateSettings, darkMode, toggleDarkMode } = useApp();
   const { colors } = useTheme();
   const { t } = useTranslation();
@@ -23,12 +38,42 @@ export function SettingsScreen() {
       <Text style={[styles.appTitle, { color: colors.primary }]}>{t('app.name')}</Text>
       <Text style={[styles.version, { color: colors.textSecondary }]}>{t('app.tagline')}</Text>
 
+      <Pressable
+        onPress={() => navigation.navigate('HomeLauncherEdit')}
+        style={[styles.option, { backgroundColor: colors.surface, borderColor: colors.border, marginBottom: 16 }]}
+      >
+        <Ionicons name="grid" size={22} color={colors.primary} style={{ marginRight: 12 }} />
+        <Text style={{ color: colors.text, flex: 1 }}>{t('home.editLauncher')}</Text>
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+      </Pressable>
+
       <Card>
         <View style={styles.row}>
           <Text style={{ color: colors.text }}>{t('settings.darkMode')}</Text>
           <Switch value={darkMode} onValueChange={toggleDarkMode} trackColor={{ true: colors.primary }} />
         </View>
+        <View style={[styles.row, { marginTop: 12 }]}>
+          <Text style={{ color: colors.text }}>{t('settings.offlineAudio')}</Text>
+          <Switch
+            value={settings.offlineAudioEnabled}
+            onValueChange={(v) => updateSettings({ offlineAudioEnabled: v })}
+            trackColor={{ true: colors.primary }}
+          />
+        </View>
       </Card>
+
+      <Text style={[styles.section, { color: colors.text }]}>{t('settings.premiumSection')}</Text>
+      {PREMIUM_LINKS.map((link) => (
+        <Pressable
+          key={link.route}
+          onPress={() => navigation.navigate(link.route as 'Themes')}
+          style={[styles.option, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        >
+          <Ionicons name={link.icon} size={22} color={colors.primary} style={{ marginRight: 12 }} />
+          <Text style={{ color: colors.text, flex: 1 }}>{t(link.labelKey)}</Text>
+          <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+        </Pressable>
+      ))}
 
       <Text style={[styles.section, { color: colors.text }]}>{t('settings.appLanguage')}</Text>
       <Text style={[styles.hint, { color: colors.textSecondary }]}>{t('settings.appLanguageHint')}</Text>

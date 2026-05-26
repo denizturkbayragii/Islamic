@@ -1,16 +1,21 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Card } from '../components/Card';
 import { getDayNames } from '../i18n';
 import { useApp } from '../context/AppContext';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { getNotificationLimitationKey } from '../utils/runtime';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 import type { PrayerName } from '../types';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'NotificationSettings'>;
 
 const PRAYERS: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 const SOUNDS = ['default', 'adhan_short', 'adhan_full', 'silent'] as const;
 
-export function NotificationSettingsScreen() {
+export function NotificationSettingsScreen({ navigation }: Props) {
   const { settings, updateSettings, location, refreshLocation } = useApp();
   const { colors } = useTheme();
   const { t, prayer } = useTranslation();
@@ -59,8 +64,27 @@ export function NotificationSettingsScreen() {
   const isDayDisabled = (prayerName: PrayerName, day: number) =>
     settings.disabledPrayerRules.some((r) => r.prayer === prayerName && r.daysOfWeek.includes(day));
 
+  const limitation = getNotificationLimitationKey();
+  const limitationText =
+    limitation === 'expoGoAndroid'
+      ? t('notifications.expoGoAndroid')
+      : limitation === 'expoGoIos'
+        ? t('notifications.expoGoIos')
+        : null;
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      {limitationText && (
+        <View style={[styles.expoBanner, { backgroundColor: colors.warning + '22', borderColor: colors.warning }]}>
+          <Text style={{ color: colors.text, lineHeight: 20 }}>{limitationText}</Text>
+          <Pressable
+            onPress={() => Linking.openURL('https://docs.expo.dev/develop/development-builds/introduction/')}
+            style={{ marginTop: 8 }}
+          >
+            <Text style={{ color: colors.primary, fontWeight: '600' }}>{t('notifications.devBuildLink')}</Text>
+          </Pressable>
+        </View>
+      )}
       <Card>
         <View style={styles.row}>
           <Text style={[styles.label, { color: colors.text }]}>{t('notifications.all')}</Text>
@@ -85,6 +109,14 @@ export function NotificationSettingsScreen() {
           {t('notifications.enableLocation')}
         </Text>
       )}
+
+      <Pressable
+        onPress={() => navigation.navigate('AdvancedReminders')}
+        style={[styles.advancedLink, { backgroundColor: colors.primary + '15', borderColor: colors.primary }]}
+      >
+        <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('nav.advancedReminders')} →</Text>
+        <Text style={{ color: colors.textSecondary, fontSize: 12, marginTop: 4 }}>{t('home.remindersSub')}</Text>
+      </Pressable>
 
       {PRAYERS.map((p) => (
         <Card key={p}>
@@ -133,4 +165,6 @@ const styles = StyleSheet.create({
   disableLabel: { marginTop: 12, fontSize: 13 },
   days: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
   dayChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, fontSize: 12 },
+  advancedLink: { padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 16 },
+  expoBanner: { padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 16 },
 });

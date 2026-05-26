@@ -11,7 +11,7 @@ import type { RootStackParamList } from '../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'Quran'>;
 
 export function QuranScreen({ navigation }: Props) {
-  const { settings } = useApp();
+  const { settings, quranProgress } = useApp();
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [surahs, setSurahs] = useState<SurahListItem[]>([]);
@@ -36,6 +36,23 @@ export function QuranScreen({ navigation }: Props) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {quranProgress.lastRead && (
+        <Pressable
+          style={[styles.resume, { backgroundColor: colors.primary + '18', borderColor: colors.primary }]}
+          onPress={() =>
+            navigation.navigate('QuranReader', {
+              surahNumber: quranProgress.lastRead!.surahNumber,
+              edition: quranProgress.lastRead!.edition,
+              surahName: quranProgress.lastRead!.surahName,
+            })
+          }
+        >
+          <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('reading.continueQuran')}</Text>
+          <Text style={{ color: colors.textSecondary }}>
+            {quranProgress.lastRead.surahName} · {t('reading.ayah')} {quranProgress.lastRead.ayahNumber}
+          </Text>
+        </Pressable>
+      )}
       <Text style={[styles.hint, { color: colors.textSecondary }]}>
         {t('quran.edition')}: {editionMeta?.name ?? edition}
       </Text>
@@ -72,6 +89,7 @@ export function QuranScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  resume: { padding: 14, borderRadius: 12, borderWidth: 1, marginBottom: 12 },
   hint: { marginBottom: 12, fontSize: 13 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1 },
   num: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginRight: 12 },

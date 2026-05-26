@@ -18,7 +18,7 @@ export function useTranslation() {
   );
 
   return useMemo(
-    () => ({ t, prayer, appLanguage: lang as AppLanguage }),
+    () => ({ t, prayer, appLanguage: lang as AppLanguage, lang: lang as AppLanguage }),
     [t, prayer, lang]
   );
 }

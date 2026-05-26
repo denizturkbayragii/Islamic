@@ -2,6 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { getPrayerLabel, translate } from '../i18n';
 import type { DisabledPrayerRule, PrayerName, UserSettings } from '../types';
+import { supportsScheduledNotifications } from '../utils/runtime';
 import { getPrayerTimes } from './prayerTimes';
 
 Notifications.setNotificationHandler({
@@ -9,6 +10,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -40,10 +43,21 @@ function parseTimeOnDate(timeStr: string, date: Date): Date {
 }
 
 export async function requestNotificationPermissions(): Promise<boolean> {
+  if (!supportsScheduledNotifications()) return false;
   const { status: existing } = await Notifications.getPermissionsAsync();
   if (existing === 'granted') return true;
   const { status } = await Notifications.requestPermissionsAsync();
   return status === 'granted';
+}
+
+async function cancelPrayerNotifications(): Promise<void> {
+  if (!supportsScheduledNotifications()) return;
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  for (const n of scheduled) {
+    if (n.identifier.startsWith('prayer-')) {
+      await Notifications.cancelScheduledNotificationAsync(n.identifier);
+    }
+  }
 }
 
 export async function schedulePrayerNotifications(
@@ -51,8 +65,9 @@ export async function schedulePrayerNotifications(
   longitude: number,
   settings: UserSettings
 ): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  await cancelPrayerNotifications();
   if (!settings.globalNotificationsEnabled) return;
+  if (!supportsScheduledNotifications()) return;
 
   const granted = await requestNotificationPermissions();
   if (!granted) return;
@@ -92,6 +107,7 @@ export async function schedulePrayerNotifications(
 
       const prayerLabel = getPrayerLabel(settings.appLanguage, prayer);
       await Notifications.scheduleNotificationAsync({
+        identifier: `prayer-${prayer}-${dayOffset}`,
         content: {
           title: translate(settings.appLanguage, 'notifications.title', { prayer: prayerLabel }),
           body: translate(settings.appLanguage, 'notifications.body', { prayer: prayerLabel }),
@@ -105,6 +121,7 @@ export async function schedulePrayerNotifications(
 }
 
 export async function setupNotificationChannels(): Promise<void> {
+  if (!supportsScheduledNotifications()) return;
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('prayer-times', {
       name: 'Prayer Times',

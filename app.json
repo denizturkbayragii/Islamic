@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Islamic",
+    "name": "Islamic+",
     "slug": "islamic",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -54,7 +54,8 @@
           "locationAlwaysAndWhenInUsePermission": "Allow Islamic to use your location for prayer times and Qibla."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-audio"
     ]
   }
 }

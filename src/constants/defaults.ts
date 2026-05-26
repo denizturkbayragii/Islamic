@@ -1,3 +1,4 @@
+import { DEFAULT_HOME_LAUNCHER_ORDER } from './homeFeatures';
 import type { PrayerName, UserSettings } from '../types';
 
 const defaultPrayerNotification = {
@@ -9,9 +10,17 @@ const defaultPrayerNotification = {
 
 const prayers: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
+const defaultWidgetPrefs = {
+  showNextPrayer: true,
+  showHijriDate: true,
+  showDailyDua: true,
+  compactMode: false,
+};
+
 export const DEFAULT_SETTINGS: UserSettings = {
   appLanguage: 'en',
   quranEditionId: 'en.sahih',
+  homeLauncher: { order: [...DEFAULT_HOME_LAUNCHER_ORDER] },
   madhab: 'hanafi',
   calculationMethod: 'muslimWorldLeague',
   sectPreference: 'neutral',
@@ -22,6 +31,13 @@ export const DEFAULT_SETTINGS: UserSettings = {
     {} as UserSettings['prayerNotifications']
   ),
   disabledPrayerRules: [],
+  themeId: 'emerald',
+  familyModeEnabled: false,
+  activeFamilyMemberId: null,
+  cloudSync: { lastSyncAt: null, deviceId: `device-${Date.now()}`, syncEnabled: false },
+  widgetPrefs: defaultWidgetPrefs,
+  customReminders: [],
+  offlineAudioEnabled: true,
 };
 
 export const CALCULATION_METHODS = [

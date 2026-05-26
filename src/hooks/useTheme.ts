@@ -1,27 +1,35 @@
 import { useMemo } from 'react';
-import { colors } from '../constants/theme';
+import { APP_THEMES } from '../constants/themes';
+import { colors as baseColors } from '../constants/theme';
 import { useApp } from '../context/AppContext';
 
 export function useTheme() {
-  const { darkMode } = useApp();
+  const { darkMode, settings } = useApp();
+  const preset = APP_THEMES[settings.themeId] ?? APP_THEMES.emerald;
+
   return useMemo(
     () => ({
       dark: darkMode,
+      themeId: settings.themeId,
+      preset,
       colors: {
-        background: darkMode ? colors.backgroundDark : colors.background,
-        surface: darkMode ? colors.surfaceDark : colors.surface,
-        text: darkMode ? colors.textDark : colors.text,
-        textSecondary: darkMode ? colors.textSecondaryDark : colors.textSecondary,
-        primary: colors.primary,
-        primaryLight: colors.primaryLight,
-        accent: colors.accent,
-        border: darkMode ? colors.borderDark : colors.border,
-        textOnPrimary: colors.textOnPrimary,
-        success: colors.success,
-        warning: colors.warning,
-        error: colors.error,
+        background: darkMode ? preset.backgroundDark : preset.background,
+        surface: darkMode ? preset.surfaceDark : preset.surface,
+        text: darkMode ? baseColors.textDark : baseColors.text,
+        textSecondary: darkMode ? baseColors.textSecondaryDark : baseColors.textSecondary,
+        primary: preset.primary,
+        primaryLight: preset.primaryLight,
+        primaryDark: preset.primaryDark,
+        accent: preset.accent,
+        accentLight: preset.accentLight,
+        border: darkMode ? baseColors.borderDark : baseColors.border,
+        textOnPrimary: baseColors.textOnPrimary,
+        success: baseColors.success,
+        warning: baseColors.warning,
+        error: baseColors.error,
+        gradient: preset.gradient,
       },
     }),
-    [darkMode]
+    [darkMode, settings.themeId, preset]
   );
 }

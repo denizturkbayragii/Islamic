@@ -1,0 +1,86 @@
+import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
+import * as FileSystem from 'expo-file-system/legacy';
+import { getJson, setJson, storageKeys } from './storage';
+
+let currentPlayer: AudioPlayer | null = null;
+let audioReady = false;
+
+export async function initAudio() {
+  if (audioReady) return;
+  await setAudioModeAsync({
+    playsInSilentMode: true,
+    shouldPlayInBackground: false,
+    interruptionMode: 'duckOthers',
+  });
+  audioReady = true;
+}
+
+export async function stopAudio() {
+  if (!currentPlayer) return;
+  currentPlayer.pause();
+  currentPlayer.remove();
+  currentPlayer = null;
+}
+
+async function playUri(uri: string): Promise<boolean> {
+  await initAudio();
+  await stopAudio();
+  const player = createAudioPlayer({ uri });
+  currentPlayer = player;
+  player.play();
+  return true;
+}
+
+export async function playRemoteAudio(url: string): Promise<boolean> {
+  try {
+    return await playUri(url);
+  } catch {
+    return false;
+  }
+}
+
+export async function getOfflineAudioPath(duaId: string): Promise<string | null> {
+  const map = await getJson<Record<string, string>>(storageKeys.offlineAudio, {});
+  return map[duaId] ?? null;
+}
+
+export async function downloadAudioForOffline(duaId: string, url: string): Promise<string | null> {
+  const dir = `${FileSystem.documentDirectory}dua-audio/`;
+  const info = await FileSystem.getInfoAsync(dir);
+  if (!info.exists) await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+  const dest = `${dir}${duaId}.mp3`;
+  const download = await FileSystem.downloadAsync(url, dest);
+  const map = await getJson<Record<string, string>>(storageKeys.offlineAudio, {});
+  map[duaId] = download.uri;
+  await setJson(storageKeys.offlineAudio, map);
+  return download.uri;
+}
+
+export async function playDuaAudio(duaId: string, remoteUrl?: string): Promise<boolean> {
+  const local = await getOfflineAudioPath(duaId);
+  if (local) {
+    try {
+      const info = await FileSystem.getInfoAsync(local);
+      if (info.exists) return await playUri(local);
+    } catch {
+      /* fall through to remote */
+    }
+  }
+  if (remoteUrl) return playRemoteAudio(remoteUrl);
+  return false;
+}
+
+export async function isAudioDownloaded(duaId: string): Promise<boolean> {
+  const path = await getOfflineAudioPath(duaId);
+  if (!path) return false;
+  try {
+    const info = await FileSystem.getInfoAsync(path);
+    return info.exists;
+  } catch {
+    return false;
+  }
+}
+
+export function isAudioAvailable(): boolean {
+  return true;
+}

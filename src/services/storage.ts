@@ -5,6 +5,15 @@ const KEYS = {
   habits: '@islamic/habits',
   tasbih: '@islamic/tasbih',
   lastLocation: '@islamic/lastLocation',
+  family: '@islamic/family',
+  stats: '@islamic/stats',
+  cloudBlob: '@islamic/cloudBlob',
+  aiChat: '@islamic/aiChat',
+  offlineAudio: '@islamic/offlineAudio',
+  duaProgress: '@islamic/duaProgress',
+  quranProgress: '@islamic/quranProgress',
+  hadithProgress: '@islamic/hadithProgress',
+  authSession: '@islamic/authSession',
 };
 
 export async function getJson<T>(key: string, fallback: T): Promise<T> {
